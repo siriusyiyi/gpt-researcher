@@ -42,7 +42,8 @@ async def test_hybrid_retriever_rrf_populates_scores():
     results = await retriever.retrieve("test query", chunks)
     for r in results:
         assert r.hybrid_score > 0.0
-        assert r.vector_score > 0.0 or r.bm25_score > 0.0
+        # Vector and BM25 scores are populated (can be negative with random embeddings)
+        assert r.vector_score != 0.0 or r.bm25_score != 0.0
 
 
 @pytest.mark.asyncio
@@ -56,7 +57,8 @@ async def test_hybrid_retriever_weighted_fusion():
     results = await retriever.retrieve("test query", chunks)
     assert len(results) <= 5
     for r in results:
-        assert r.hybrid_score > 0.0
+        # Weighted fusion produces a score (can be negative with random embeddings)
+        assert r.hybrid_score != 0.0
 
 
 @pytest.mark.asyncio
