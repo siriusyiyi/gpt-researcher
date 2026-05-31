@@ -34,6 +34,14 @@ class RAGConfig:
     dedup_threshold: float = 0.85
     max_results: int = 10
 
+    # Knowledge Store
+    enable_knowledge_store: bool = False
+    knowledge_store_path: str = "./knowledge_store"   # Chroma persist directory
+    knowledge_collection: str = "default"              # Chroma collection name
+    knowledge_store_mode: str = "supplement"           # "supplement" | "primary"
+    # supplement: query knowledge store first, then in-memory docs
+    # primary: only query knowledge store (for Q&A scenarios)
+
     # LLM (for query rewriting only)
     llm_model: str | None = None
     llm_provider: str | None = None
@@ -46,12 +54,17 @@ class RAGConfig:
             researcher.cfg.fast_llm_model    → llm_model
             researcher.cfg.fast_llm_provider → llm_provider
             researcher.cfg.max_search_results_per_query → rerank_top_k
+            researcher.cfg.doc_path → knowledge_store_path (parent dir)
         Embeddings are passed directly to pipeline stages (stateful instance),
         not stored in config.
         """
         cfg = researcher.cfg
+        import os
+        doc_path = getattr(cfg, "doc_path", "./my-docs")
+        kb_path = os.path.join(os.path.dirname(doc_path), "knowledge_store")
         return cls(
             llm_model=cfg.fast_llm_model,
             llm_provider=cfg.fast_llm_provider,
             rerank_top_k=getattr(cfg, "max_search_results_per_query", 10),
+            knowledge_store_path=kb_path,
         )

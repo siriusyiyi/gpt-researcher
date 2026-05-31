@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from .config import RAGConfig
+from .knowledge_store.chroma_store import ChromaKnowledgeStore
 from .pipeline import RAGPipeline
 
 
 class RAGAdapter:
     """Drop-in replacement for ContextManager's compression methods.
+
+    Optionally creates a KnowledgeStore for persistent document storage
+    when enable_knowledge_store is True in config.
 
     Usage:
         from rag_enhanced.adapter import RAGAdapter
@@ -17,10 +21,25 @@ class RAGAdapter:
     def __init__(self, researcher, config: RAGConfig | None = None):
         self.researcher = researcher
         self.config = config or RAGConfig.from_researcher(researcher)
+
+        # Optionally create knowledge store
+        self.knowledge_store = self._build_knowledge_store()
+
         self.pipeline = RAGPipeline(
             config=self.config,
             embeddings=researcher.memory.get_embeddings(),
             llm_func=self._make_llm_func(),
+            knowledge_store=self.knowledge_store,
+        )
+
+    def _build_knowledge_store(self):
+        """Create a KnowledgeStore if enabled in config."""
+        if not self.config.enable_knowledge_store:
+            return None
+        return ChromaKnowledgeStore(
+            embeddings=self.researcher.memory.get_embeddings(),
+            collection_name=self.config.knowledge_collection,
+            persist_directory=self.config.knowledge_store_path,
         )
 
     async def get_similar_content_by_query(self, query: str, pages: list) -> str:
@@ -46,6 +65,26 @@ class RAGAdapter:
             **self.researcher.kwargs,
         )
         return await vectorstore_compressor.async_get_context(query=query, max_results=8)
+
+    async def ingest_local_docs(self, doc_path: str | None = None) -> int:
+        """Load local documents into the knowledge store.
+
+        Args:
+            doc_path: Path to file or directory. Defaults to researcher's doc_path.
+
+        Returns:
+            Number of chunks stored.
+
+        Raises:
+            RuntimeError: If knowledge store is not enabled.
+        """
+        if not self.knowledge_store:
+            raise RuntimeError(
+                "Knowledge store is not enabled. "
+                "Set enable_knowledge_store=True in RAGConfig."
+            )
+        path = doc_path or self.researcher.cfg.doc_path
+        return await self.knowledge_store.ingest_local_docs(path)
 
     def _make_llm_func(self):
         """Create an LLM function from the researcher's config."""

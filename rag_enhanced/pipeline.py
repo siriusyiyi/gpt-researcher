@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Callable, Coroutine
+from typing import Callable, Coroutine, Optional
 
 from .chunking.base import Chunk
 from .chunking.adaptive import AdaptiveChunker
 from .chunking.semantic import SemanticChunker
 from .compression.context_aware import ContextAwareCompressor
 from .config import RAGConfig
+from .knowledge_store.base import BaseKnowledgeStore
 from .retrieval.hybrid import HybridRetriever
 from .retrieval.query_rewriter import QueryRewriter
 from .reranking.embedding_rerank import EmbeddingReranker
@@ -17,10 +18,14 @@ from .reranking.embedding_rerank import EmbeddingReranker
 class RAGPipeline:
     """Orchestrate the full RAG pipeline.
 
-    Flow:
+    Flow (in-memory):
         documents → [Chunker] → chunks → [QueryRewriter] → queries
         → [HybridRetriever] → retrieved → [Reranker] → reranked
         → [Compressor] → context_string
+
+    Flow (with knowledge store):
+        query → [KnowledgeStore.retrieve] → kb_chunks
+        → merge with in-memory results → [Reranker] → [Compressor]
     """
 
     def __init__(
@@ -28,10 +33,12 @@ class RAGPipeline:
         config: RAGConfig,
         embeddings,
         llm_func: Callable[..., Coroutine] | None = None,
+        knowledge_store: Optional[BaseKnowledgeStore] = None,
     ):
         self.config = config
         self.embeddings = embeddings
         self.llm_func = llm_func
+        self.knowledge_store = knowledge_store
 
         self.chunker = self._build_chunker()
         self.query_rewriter = self._build_query_rewriter()
@@ -40,26 +47,48 @@ class RAGPipeline:
         self.compressor = self._build_compressor()
 
     async def process(self, query: str, documents: list[dict]) -> str:
-        """Run the full RAG pipeline on documents for the given query."""
-        if not documents:
+        """Run the full RAG pipeline on documents for the given query.
+
+        When a knowledge store is configured:
+            - "primary" mode: only retrieve from knowledge store
+            - "supplement" mode: retrieve from knowledge store AND in-memory docs,
+              then merge and deduplicate
+        """
+        mode = self.config.knowledge_store_mode
+
+        # --- Knowledge store retrieval ---
+        kb_chunks: list[Chunk] = []
+        if self.knowledge_store:
+            kb_chunks = await self.knowledge_store.retrieve(
+                query, top_k=self.config.rerank_top_k * 2,
+            )
+
+        # --- Primary mode: skip in-memory processing entirely ---
+        if mode == "primary" and kb_chunks:
+            reranked = await self.reranker.rerank(query, kb_chunks)
+            return await self.compressor.compress(query, reranked)
+
+        # --- In-memory pipeline (original flow) ---
+        mem_chunks: list[Chunk] = []
+        if documents:
+            chunks = await self.chunker.chunk(documents)
+            if chunks:
+                if self.config.enable_query_rewrite and self.query_rewriter:
+                    queries = await self.query_rewriter.rewrite(query)
+                else:
+                    queries = [query]
+
+                for q in queries:
+                    query_chunks = self._clone_chunks(chunks)
+                    retrieved = await self.retriever.retrieve(q, query_chunks)
+                    mem_chunks.extend(retrieved)
+
+        # --- Merge knowledge store + in-memory results ---
+        combined = kb_chunks + mem_chunks
+        if not combined:
             return ""
 
-        chunks = await self.chunker.chunk(documents)
-        if not chunks:
-            return ""
-
-        if self.config.enable_query_rewrite and self.query_rewriter:
-            queries = await self.query_rewriter.rewrite(query)
-        else:
-            queries = [query]
-
-        all_retrieved: list[Chunk] = []
-        for q in queries:
-            query_chunks = self._clone_chunks(chunks)
-            retrieved = await self.retriever.retrieve(q, query_chunks)
-            all_retrieved.extend(retrieved)
-
-        deduped = self._deduplicate_by_content(all_retrieved)
+        deduped = self._deduplicate_by_content(combined)
         reranked = await self.reranker.rerank(query, deduped)
         context = await self.compressor.compress(query, reranked)
         return context
