@@ -20,6 +20,7 @@ Usage — RAGQueryTool class (more control):
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Callable, Coroutine, Optional
 
@@ -120,13 +121,18 @@ class RAGQueryTool:
         else:
             queries = [question]
 
-        # 2. Retrieve from knowledge store for each query variant
-        all_chunks: list[Chunk] = []
-        for q in queries:
-            retrieved = await self.knowledge_store.retrieve(
-                q, top_k=self.config.rerank_top_k * 2,
-            )
-            all_chunks.extend(retrieved)
+        # 2. Retrieve from knowledge store for each query variant (parallel)
+        top_k = self.config.rerank_top_k * 2
+        if len(queries) > 1:
+            results = await asyncio.gather(*[
+                self.knowledge_store.retrieve(q, top_k=top_k)
+                for q in queries
+            ])
+            all_chunks: list[Chunk] = []
+            for retrieved in results:
+                all_chunks.extend(retrieved)
+        else:
+            all_chunks = await self.knowledge_store.retrieve(queries[0], top_k=top_k)
 
         if not all_chunks:
             return {

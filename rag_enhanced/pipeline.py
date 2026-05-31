@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Callable, Coroutine, Optional
 
 from .chunking.base import Chunk
@@ -78,9 +79,15 @@ class RAGPipeline:
                 else:
                     queries = [query]
 
-                for q in queries:
-                    query_chunks = self._clone_chunks(chunks)
-                    retrieved = await self.retriever.retrieve(q, query_chunks)
+                if len(queries) > 1:
+                    results = await asyncio.gather(*[
+                        self.retriever.retrieve(q, self._clone_chunks(chunks))
+                        for q in queries
+                    ])
+                    for retrieved in results:
+                        mem_chunks.extend(retrieved)
+                else:
+                    retrieved = await self.retriever.retrieve(queries[0], self._clone_chunks(chunks))
                     mem_chunks.extend(retrieved)
 
         # --- Merge knowledge store + in-memory results ---

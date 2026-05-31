@@ -42,16 +42,25 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             collection_name=collection_name,
             embedding_function=embeddings,
             persist_directory=persist_directory,
+            collection_metadata={"hnsw:space": "cosine"},  # cosine distance → 1-score = similarity
         )
 
     async def add_documents(self, chunks: list[Chunk], doc_type: str = "local") -> int:
         """Add chunks to the Chroma collection.
+
+        Before adding, any existing chunks with the same source are
+        deleted first to prevent duplicates on re-ingestion.
 
         Each chunk's content becomes the document text, and metadata
         is enriched with doc_type. A unique id is assigned per chunk.
         """
         if not chunks:
             return 0
+
+        # Deduplication: remove old chunks for the same sources
+        sources = {c.metadata.get("source") for c in chunks if c.metadata.get("source")}
+        for source in sources:
+            await self.delete(source)
 
         texts: list[str] = []
         metadatas: list[dict] = []
@@ -95,7 +104,7 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             chunk = Chunk(
                 content=doc.page_content,
                 metadata=doc.metadata,
-                vector_score=1.0 - score,  # Chroma returns L2 distance; convert to similarity
+                vector_score=1.0 - score,  # cosine distance: score = 1 - cosine_similarity
             )
             chunks.append(chunk)
 
