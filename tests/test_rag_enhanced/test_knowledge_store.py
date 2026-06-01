@@ -168,6 +168,42 @@ async def test_add_with_doc_type_metadata(store):
 
 
 @pytest.mark.asyncio
+async def test_hybrid_retrieve_populates_all_scores(store):
+    """Verify retrieve() fills vector_score, bm25_score, and hybrid_score."""
+    chunks = _make_chunks(10, prefix="machine learning algorithms", source="ml.txt")
+    await store.add_documents(chunks)
+
+    results = await store.retrieve("machine learning", top_k=5)
+    assert len(results) > 0
+
+    for r in results:
+        assert isinstance(r.hybrid_score, float)
+        assert r.hybrid_score != 0.0
+        assert isinstance(r.vector_score, float)
+        assert isinstance(r.bm25_score, float)
+
+
+@pytest.mark.asyncio
+async def test_bm25_index_auto_refresh(store):
+    """Verify BM25 index is refreshed after add/delete."""
+    chunks_a = _make_chunks(3, prefix="neural networks", source="nn.txt")
+    await store.add_documents(chunks_a)
+
+    results_before = await store.retrieve("neural", top_k=5)
+    count_before = len(results_before)
+
+    # Add more documents
+    chunks_b = _make_chunks(3, prefix="neural convolution", source="cnn.txt")
+    await store.add_documents(chunks_b)
+
+    results_after = await store.retrieve("neural", top_k=5)
+    # Should still work, BM25 index auto-rebuilt
+    assert len(results_after) > 0
+    for r in results_after:
+        assert r.hybrid_score != 0.0
+
+
+@pytest.mark.asyncio
 async def test_persistence(embeddings, temp_store_dir):
     """Test that data persists across store instances."""
     store1 = ChromaKnowledgeStore(

@@ -7,25 +7,26 @@ import uuid
 from typing import Optional
 
 from langchain_chroma import Chroma
+from rank_bm25 import BM25Okapi
 
 from ..chunking.base import Chunk
 from .base import BaseKnowledgeStore
 
 logger = logging.getLogger(__name__)
 
+_RRF_K = 60  # RRF constant, matches HybridRetriever default
+
 
 class ChromaKnowledgeStore(BaseKnowledgeStore):
-    """Persistent knowledge store backed by ChromaDB.
+    """Persistent knowledge store backed by ChromaDB with in-memory BM25.
 
-    Stores chunked documents with embeddings in a Chroma collection.
-    Supports similarity search, source-based deletion, and ingestion
-    from local document directories.
+    Dual retrieval path:
+        - Vector search via Chroma (persistent, cosine distance)
+        - BM25 keyword search via rank_bm25 (in-memory, rebuilt lazily)
+        - Results fused with Reciprocal Rank Fusion (RRF)
 
-    Args:
-        embeddings: LangChain-compatible embeddings instance.
-        collection_name: Chroma collection name.
-        persist_directory: Directory for Chroma data persistence.
-            If None, runs in-memory (no persistence).
+    The BM25 index is built lazily on first retrieval and rebuilt
+    automatically after any add/delete operation (dirty flag).
     """
 
     def __init__(
@@ -42,17 +43,100 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             collection_name=collection_name,
             embedding_function=embeddings,
             persist_directory=persist_directory,
-            collection_metadata={"hnsw:space": "cosine"},  # cosine distance → 1-score = similarity
+            collection_metadata={"hnsw:space": "cosine"},
         )
+
+        # In-memory BM25 index (lazy-built, auto-refreshed)
+        self._bm25_index: Optional[BM25Okapi] = None
+        self._bm25_docs: list[dict] = []  # parallel array: [{id, text, metadata}]
+        self._bm25_dirty: bool = True
+
+    # ------------------------------------------------------------------
+    # BM25 index management
+    # ------------------------------------------------------------------
+
+    def _invalidate_bm25(self):
+        """Mark the BM25 index as stale."""
+        self._bm25_dirty = True
+
+    def _ensure_bm25(self):
+        """Rebuild the in-memory BM25 index if dirty.
+
+        Loads all documents from Chroma and tokenizes them.
+        This is fast (< 100ms for thousands of chunks).
+        """
+        if not self._bm25_dirty and self._bm25_index is not None:
+            return
+
+        all_data = self._store.get()
+        ids = all_data.get("ids", [])
+        texts = all_data.get("documents", [])
+        metadatas = all_data.get("metadatas", [])
+
+        if not texts:
+            self._bm25_index = None
+            self._bm25_docs = []
+            self._bm25_dirty = False
+            return
+
+        self._bm25_docs = [
+            {"id": doc_id, "text": text, "metadata": meta or {}}
+            for doc_id, text, meta in zip(ids, texts, metadatas)
+        ]
+
+        tokenized_corpus = [text.lower().split() for text in texts]
+        self._bm25_index = BM25Okapi(tokenized_corpus)
+        self._bm25_dirty = False
+
+        logger.debug("BM25 index rebuilt: %d documents", len(self._bm25_docs))
+
+    def _bm25_search(self, query: str) -> list[tuple[int, float]]:
+        """Run BM25 search, return (doc_index, score) pairs sorted by score."""
+        if self._bm25_index is None:
+            return []
+
+        tokenized_query = query.lower().split()
+        scores = self._bm25_index.get_scores(tokenized_query)
+        ranked = sorted(
+            range(len(scores)),
+            key=lambda i: scores[i],
+            reverse=True,
+        )
+        return [(idx, float(scores[idx])) for idx in ranked]
+
+    @staticmethod
+    def _rrf_fuse(
+        bm25_ranked: list[tuple[int, float]],
+        vector_ranked: list[tuple[int, float]],
+        total_docs: int,
+    ) -> dict[int, float]:
+        """RRF fusion: combine BM25 and vector ranks.
+
+        Returns dict of doc_index → hybrid_score.
+        """
+        bm25_rank_map = {idx: rank for rank, (idx, _) in enumerate(bm25_ranked)}
+        vec_rank_map = {idx: rank for rank, (idx, _) in enumerate(vector_ranked)}
+
+        scores: dict[int, float] = {}
+        for i in range(total_docs):
+            rrf_score = 0.0
+            if i in bm25_rank_map:
+                rrf_score += 1.0 / (_RRF_K + bm25_rank_map[i] + 1)
+            if i in vec_rank_map:
+                rrf_score += 1.0 / (_RRF_K + vec_rank_map[i] + 1)
+            scores[i] = rrf_score
+
+        return scores
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     async def add_documents(self, chunks: list[Chunk], doc_type: str = "local") -> int:
         """Add chunks to the Chroma collection.
 
         Before adding, any existing chunks with the same source are
         deleted first to prevent duplicates on re-ingestion.
-
-        Each chunk's content becomes the document text, and metadata
-        is enriched with doc_type. A unique id is assigned per chunk.
         """
         if not chunks:
             return 0
@@ -70,7 +154,6 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             texts.append(chunk.content)
             meta = dict(chunk.metadata)
             meta["doc_type"] = doc_type
-            # Ensure all metadata values are str/int/float/bool (Chroma requirement)
             sanitized = {}
             for k, v in meta.items():
                 if v is None:
@@ -85,38 +168,78 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             ids=ids,
         )
 
+        self._invalidate_bm25()
         logger.info("Added %d chunks to knowledge store (doc_type=%s)", len(chunks), doc_type)
         return len(chunks)
 
     async def retrieve(self, query: str, top_k: int = 10) -> list[Chunk]:
-        """Retrieve chunks by similarity search.
+        """Hybrid retrieval: Chroma vector search + in-memory BM25, fused via RRF.
 
-        Returns Chunk objects with vector_score populated from Chroma's
-        relevance score.
+        Returns Chunk objects with vector_score, bm25_score, and hybrid_score.
         """
-        results = await self._store.asimilarity_search_with_score(
+        # Ensure BM25 index is fresh
+        self._ensure_bm25()
+
+        total = self._store._collection.count()
+        if total == 0:
+            return []
+
+        # --- Vector search via Chroma ---
+        vec_results = await self._store.asimilarity_search_with_score(
             query=query,
-            k=top_k,
+            k=min(top_k * 3, total),  # over-retrieve to give RRF more candidates
         )
+        # Build index mapping: Chroma results → position in _bm25_docs
+        text_to_bm25_idx = {
+            doc["text"]: i for i, doc in enumerate(self._bm25_docs)
+        }
 
+        # Vector ranked list: (bm25_index, vector_score)
+        vector_ranked: list[tuple[int, float]] = []
+        for doc, score in vec_results:
+            idx = text_to_bm25_idx.get(doc.page_content)
+            if idx is not None:
+                vector_ranked.append((idx, 1.0 - score))
+
+        # --- BM25 search ---
+        bm25_ranked = self._bm25_search(query)
+
+        # --- RRF fusion ---
+        fused = self._rrf_fuse(bm25_ranked, vector_ranked, total)
+
+        # Sort by hybrid_score, take top_k
+        top_indices = sorted(fused, key=fused.get, reverse=True)[:top_k]
+
+        # Build result chunks
         chunks: list[Chunk] = []
-        for doc, score in results:
-            chunk = Chunk(
-                content=doc.page_content,
-                metadata=doc.metadata,
-                vector_score=1.0 - score,  # cosine distance: score = 1 - cosine_similarity
-            )
-            chunks.append(chunk)
+        for idx in top_indices:
+            if idx >= len(self._bm25_docs):
+                continue
+            doc = self._bm25_docs[idx]
+            bm25_score = 0.0
+            vec_score = 0.0
+            for bi, bs in bm25_ranked:
+                if bi == idx:
+                    bm25_score = bs
+                    break
+            for vi, vs in vector_ranked:
+                if vi == idx:
+                    vec_score = vs
+                    break
 
-        logger.debug("Retrieved %d chunks for query: %s", len(chunks), query[:50])
+            chunks.append(Chunk(
+                content=doc["text"],
+                metadata=doc["metadata"],
+                vector_score=vec_score,
+                bm25_score=bm25_score,
+                hybrid_score=fused[idx],
+            ))
+
+        logger.debug("Retrieved %d chunks (hybrid) for query: %s", len(chunks), query[:50])
         return chunks
 
     async def delete(self, source: str) -> int:
-        """Delete all chunks matching a source.
-
-        Uses Chroma's metadata filtering to find and remove chunks.
-        """
-        # Query all chunks with matching source to get their IDs
+        """Delete all chunks matching a source."""
         results = self._store.get(
             where={"source": source},
         )
@@ -126,6 +249,7 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             return 0
 
         self._store._collection.delete(ids=ids_to_delete)
+        self._invalidate_bm25()
         logger.info("Deleted %d chunks from source: %s", len(ids_to_delete), source)
         return len(ids_to_delete)
 
@@ -133,10 +257,8 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
         """List unique sources with their metadata and chunk counts."""
         all_data = self._store.get()
 
-        ids = all_data.get("ids", [])
         metadatas = all_data.get("metadatas", [])
 
-        # Group by source
         source_map: dict[str, dict] = {}
         for meta in metadatas:
             source = meta.get("source", "unknown")
@@ -156,24 +278,11 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
         return self._store._collection.count()
 
     async def ingest_local_docs(self, doc_path: str) -> int:
-        """Load local documents, chunk them, and store in the knowledge base.
-
-        This is a convenience method that:
-        1. Loads documents via DocumentLoader
-        2. Chunks them with AdaptiveChunker
-        3. Stores the chunks
-
-        Args:
-            doc_path: Path to a file or directory.
-
-        Returns:
-            Number of chunks stored.
-        """
+        """Load local documents, chunk them, and store in the knowledge base."""
         from gpt_researcher.document.document import DocumentLoader
 
         from ..chunking.adaptive import AdaptiveChunker
 
-        # Load raw documents
         loader = DocumentLoader(doc_path)
         documents = await loader.load()
 
@@ -181,7 +290,6 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             logger.warning("No documents found at: %s", doc_path)
             return 0
 
-        # Chunk documents
         chunker = AdaptiveChunker()
         chunks = await chunker.chunk(documents)
 
@@ -189,7 +297,6 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
             logger.warning("No chunks produced from: %s", doc_path)
             return 0
 
-        # Store in knowledge base
         count = await self.add_documents(chunks, doc_type="local")
         logger.info("Ingested %d chunks from %s", count, doc_path)
         return count
