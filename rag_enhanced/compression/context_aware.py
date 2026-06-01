@@ -40,8 +40,15 @@ class ContextAwareCompressor(BaseCompressor):
         if total_chars < _FAST_PATH_THRESHOLD and len(chunks) <= self.max_results:
             return self._format_output(chunks[: self.max_results])
 
-        contents = [c.content for c in chunks]
-        embs = await self.embeddings.aembed_documents(contents)
+        # Reuse cached embeddings where available, only embed the rest
+        to_embed_indices = [i for i, c in enumerate(chunks) if c.embedding is None]
+        if to_embed_indices:
+            contents = [chunks[i].content for i in to_embed_indices]
+            new_embs = await self.embeddings.aembed_documents(contents)
+            for idx, emb in zip(to_embed_indices, new_embs):
+                chunks[idx].embedding = emb
+
+        embs = [c.embedding for c in chunks]
 
         deduped = self._deduplicate(chunks, embs)
         deduped.sort(key=self._sort_key, reverse=True)

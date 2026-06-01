@@ -1,0 +1,1287 @@
+{
+  "config": {
+    "sample_per_domain": 10,
+    "domains": [
+      "open",
+      "movie",
+      "finance",
+      "music",
+      "sports"
+    ],
+    "max_page_chars": 50000,
+    "seed": 42,
+    "skip_judge": true
+  },
+  "summary": {
+    "original": {
+      "token_recall": 0.5347492136346625,
+      "phrase_recall": 0.46121212121212124,
+      "avg_latency": 6.547880969997496,
+      "llm_judge": null
+    },
+    "enhanced": {
+      "token_recall": 0.5385509927808689,
+      "phrase_recall": 0.46121212121212124,
+      "avg_latency": 6.710859834004659,
+      "llm_judge": null
+    },
+    "kb_only": {
+      "token_recall": 0.54689790644512,
+      "phrase_recall": 0.46121212121212124,
+      "avg_latency": 0.9731537259998732,
+      "llm_judge": null
+    }
+  },
+  "per_question": [
+    {
+      "id": "37c0f80e",
+      "domain": "open",
+      "question_type": "simple_w_condition",
+      "question": "who won the nobel prize in physics in 2022 from usa",
+      "gold_answer": "john f clauser",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 0.0,
+        "time": 6.075006500002928,
+        "ctx_len": 2153
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 0.0,
+        "time": 6.508842799987178,
+        "ctx_len": 5098
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 0.0,
+        "time": 0.9465391999692656,
+        "ctx_len": 11205
+      }
+    },
+    {
+      "id": "5d14286b",
+      "domain": "movie",
+      "question_type": "simple",
+      "question": "during the 2007 academy awards, which movie received the award for the best documentary feature film?",
+      "gold_answer": "an inconvenient truth",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 4.472067099995911,
+        "ctx_len": 6508
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 3.0256668999791145,
+        "ctx_len": 16122
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 1.037267800013069,
+        "ctx_len": 13544
+      }
+    },
+    {
+      "id": "92e00d95",
+      "domain": "finance",
+      "question_type": "simple",
+      "question": "on what date did imppp start distributing dividends to its investors?",
+      "gold_answer": "2021-12-23",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 7.420004112645984e-05,
+        "ctx_len": 6581
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 1.8625412000110373,
+        "ctx_len": 7234
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.8764418999780901,
+        "ctx_len": 6642
+      }
+    },
+    {
+      "id": "23f1fbae",
+      "domain": "music",
+      "question_type": "aggregation",
+      "question": "how many music videos has the band radiohead released that have been directed by grant gee?",
+      "gold_answer": "radiohead has released a total of 2 music videos that have been directed by grant gee.",
+      "original": {
+        "token_recall": 0.6875,
+        "phrase_recall": 0.0,
+        "time": 9.623186799988616,
+        "ctx_len": 10852
+      },
+      "enhanced": {
+        "token_recall": 0.75,
+        "phrase_recall": 0.0,
+        "time": 11.973246300010942,
+        "ctx_len": 11885
+      },
+      "kb_only": {
+        "token_recall": 0.75,
+        "phrase_recall": 0.0,
+        "time": 0.8285750999930315,
+        "ctx_len": 15268
+      }
+    },
+    {
+      "id": "3b9e7284",
+      "domain": "sports",
+      "question_type": "aggregation",
+      "question": "how many super bowl titles have the cowboys won?",
+      "gold_answer": "the dallas cowboys have won five super bowl titles.",
+      "original": {
+        "token_recall": 0.8888888888888888,
+        "phrase_recall": 0.0,
+        "time": 3.7273023999878205,
+        "ctx_len": 8644
+      },
+      "enhanced": {
+        "token_recall": 0.8888888888888888,
+        "phrase_recall": 0.0,
+        "time": 5.423755600000732,
+        "ctx_len": 4835
+      },
+      "kb_only": {
+        "token_recall": 0.8888888888888888,
+        "phrase_recall": 0.0,
+        "time": 0.7893123999820091,
+        "ctx_len": 11893
+      }
+    },
+    {
+      "id": "c4beea56",
+      "domain": "movie",
+      "question_type": "comparison",
+      "question": "which film had the bigger budget, inside out or finding dory?",
+      "gold_answer": "finding dory",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 5.8999983593821526e-05,
+        "ctx_len": 6142
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 2.5092885000049137,
+        "ctx_len": 6862
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.9073515000054613,
+        "ctx_len": 6386
+      }
+    },
+    {
+      "id": "787795e8",
+      "domain": "open",
+      "question_type": "set",
+      "question": "what are the 4 smallest cities in the usa?",
+      "gold_answer": "the smallest cities in the us are hibbert's gore, monowi, hillsview and luckenbach.",
+      "original": {
+        "token_recall": 0.6923076923076923,
+        "phrase_recall": 0.3333333333333333,
+        "time": 4.369643100013491,
+        "ctx_len": 10042
+      },
+      "enhanced": {
+        "token_recall": 0.7692307692307693,
+        "phrase_recall": 0.3333333333333333,
+        "time": 4.022623500030022,
+        "ctx_len": 7371
+      },
+      "kb_only": {
+        "token_recall": 0.6923076923076923,
+        "phrase_recall": 0.3333333333333333,
+        "time": 1.3362344999914058,
+        "ctx_len": 8193
+      }
+    },
+    {
+      "id": "e554740c",
+      "domain": "sports",
+      "question_type": "multi-hop",
+      "question": "where does amen thompson's brother play?",
+      "gold_answer": "detroit pistons",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 5.3662147000432014,
+        "ctx_len": 8673
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 6.846728800039273,
+        "ctx_len": 8809
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.7194676999934018,
+        "ctx_len": 10009
+      }
+    },
+    {
+      "id": "abffd943",
+      "domain": "sports",
+      "question_type": "set",
+      "question": "which boxers have won world titles in at least seven different weight classes?",
+      "gold_answer": "amanda serrano and manny pacquiao have both won world titles in at least seven different weight classes.",
+      "original": {
+        "token_recall": 0.5294117647058824,
+        "phrase_recall": 0.0,
+        "time": 4.562185999995563,
+        "ctx_len": 9104
+      },
+      "enhanced": {
+        "token_recall": 0.7647058823529411,
+        "phrase_recall": 0.0,
+        "time": 3.550787100044545,
+        "ctx_len": 11317
+      },
+      "kb_only": {
+        "token_recall": 0.5882352941176471,
+        "phrase_recall": 0.0,
+        "time": 1.1518680999870412,
+        "ctx_len": 7826
+      }
+    },
+    {
+      "id": "168ed85e",
+      "domain": "sports",
+      "question_type": "aggregation",
+      "question": "how many points did deandre jordan score for free throws in the game on 2013-10-19?",
+      "gold_answer": "3",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 6.311846199969295,
+        "ctx_len": 10493
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 2.7808418000349775,
+        "ctx_len": 11379
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 1.5561015999992378,
+        "ctx_len": 6834
+      }
+    },
+    {
+      "id": "b3057146",
+      "domain": "finance",
+      "question_type": "simple",
+      "question": "what was aeae's closing price yesterday?",
+      "gold_answer": "$11.10",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 5.470000905916095e-05,
+        "ctx_len": 5704
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 2.275104400003329,
+        "ctx_len": 6005
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.6738671000348404,
+        "ctx_len": 6228
+      }
+    },
+    {
+      "id": "959e4644",
+      "domain": "movie",
+      "question_type": "comparison",
+      "question": "which film received better critic ratings from rotten tomatoes, shutter island or the wolf of wall street?",
+      "gold_answer": "the wolf of wall street",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 6.338489899993874,
+        "ctx_len": 10081
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 7.0070907000335865,
+        "ctx_len": 7746
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.8717929000267759,
+        "ctx_len": 11057
+      }
+    },
+    {
+      "id": "b23312ae",
+      "domain": "music",
+      "question_type": "comparison",
+      "question": "who's the younger artist out of taylor swift and justin bieber?",
+      "gold_answer": "justin biber",
+      "original": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 8.177186399989296,
+        "ctx_len": 11149
+      },
+      "enhanced": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 8.769287800008897,
+        "ctx_len": 5533
+      },
+      "kb_only": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 0.9366405999753624,
+        "ctx_len": 11305
+      }
+    },
+    {
+      "id": "953d7781",
+      "domain": "finance",
+      "question_type": "aggregation",
+      "question": "what was the total revenue of the top earning company worldwide, target?",
+      "gold_answer": "actually, walmart has the highest revenue earning over $640 billion.",
+      "original": {
+        "token_recall": 0.3,
+        "phrase_recall": 0.0,
+        "time": 4.870002157986164e-05,
+        "ctx_len": 463
+      },
+      "enhanced": {
+        "token_recall": 0.3,
+        "phrase_recall": 0.0,
+        "time": 0.9101651000091806,
+        "ctx_len": 504
+      },
+      "kb_only": {
+        "token_recall": 0.3,
+        "phrase_recall": 0.0,
+        "time": 0.9334839000366628,
+        "ctx_len": 518
+      }
+    },
+    {
+      "id": "27923312",
+      "domain": "movie",
+      "question_type": "simple",
+      "question": "is algae the original title of the movie?",
+      "gold_answer": "no",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 6.785359199973755,
+        "ctx_len": 8846
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 6.195766500022728,
+        "ctx_len": 7100
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 1.3665592999896035,
+        "ctx_len": 13140
+      }
+    },
+    {
+      "id": "74b4339f",
+      "domain": "finance",
+      "question_type": "simple",
+      "question": "what was cslm's closing stock price the previous day?",
+      "gold_answer": "$11.01",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 5.370000144466758e-05,
+        "ctx_len": 820
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 1.9444106000009924,
+        "ctx_len": 909
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.9120012000203133,
+        "ctx_len": 875
+      }
+    },
+    {
+      "id": "95395d91",
+      "domain": "finance",
+      "question_type": "comparison",
+      "question": "which us company has the higher revenue, amazon or apple?",
+      "gold_answer": "amazon",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 3.700673899962567,
+        "ctx_len": 8312
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 5.301796899992041,
+        "ctx_len": 6424
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.9669896999839693,
+        "ctx_len": 8024
+      }
+    },
+    {
+      "id": "820088ad",
+      "domain": "movie",
+      "question_type": "false_premise",
+      "question": "as the highest grossing disney film, how much did frozen make?",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 5.8464259000029415,
+        "ctx_len": 9815
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 5.3542503999779,
+        "ctx_len": 9349
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 1.0515469000092708,
+        "ctx_len": 8280
+      }
+    },
+    {
+      "id": "19b53f81",
+      "domain": "finance",
+      "question_type": "post-processing",
+      "question": "how old is apple since their ipo when they released their first phone product",
+      "gold_answer": "apple is 27 years old as a company since their ipo date when they release their first phone product",
+      "original": {
+        "token_recall": 0.9473684210526315,
+        "phrase_recall": 0.0,
+        "time": 11.121599800011609,
+        "ctx_len": 10248
+      },
+      "enhanced": {
+        "token_recall": 0.8421052631578947,
+        "phrase_recall": 0.0,
+        "time": 8.217195200035349,
+        "ctx_len": 13096
+      },
+      "kb_only": {
+        "token_recall": 0.9473684210526315,
+        "phrase_recall": 0.0,
+        "time": 0.7717420000117272,
+        "ctx_len": 14371
+      }
+    },
+    {
+      "id": "24709ca4",
+      "domain": "finance",
+      "question_type": "comparison",
+      "question": "which company's stock is more attractive based on the p/e ratio, inbx or  rxrx?",
+      "gold_answer": "inbx",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 19.46488149999641,
+        "ctx_len": 11622
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 22.098683599964716,
+        "ctx_len": 6311
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.7926284000277519,
+        "ctx_len": 16046
+      }
+    },
+    {
+      "id": "d4d3a121",
+      "domain": "movie",
+      "question_type": "simple",
+      "question": "is find me guilty the official name of that movie at first?",
+      "gold_answer": "yes",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 4.488247199973557,
+        "ctx_len": 3319
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 6.275730800000019,
+        "ctx_len": 4086
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.9388325000181794,
+        "ctx_len": 9839
+      }
+    },
+    {
+      "id": "f35a3a84",
+      "domain": "open",
+      "question_type": "false_premise",
+      "question": "when did donald trump change their name?",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 13.88979379995726,
+        "ctx_len": 9766
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 16.303073699993547,
+        "ctx_len": 6222
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.7546092999982648,
+        "ctx_len": 10362
+      }
+    },
+    {
+      "id": "ff48957c",
+      "domain": "music",
+      "question_type": "false_premise",
+      "question": "when did miley cyrus win grammy best new artist award?",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 5.13000413775444e-05,
+        "ctx_len": 4147
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 1.7504641000414267,
+        "ctx_len": 4751
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.9030597999808379,
+        "ctx_len": 4443
+      }
+    },
+    {
+      "id": "66c2ba40",
+      "domain": "open",
+      "question_type": "false_premise",
+      "question": "when is justin bieber's planning to launch her new upcoming podcast",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 2.463197899982333,
+        "ctx_len": 9312
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 3.510253800021019,
+        "ctx_len": 4328
+      },
+      "kb_only": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 0.9850696000503376,
+        "ctx_len": 4559
+      }
+    },
+    {
+      "id": "5b960aa4",
+      "domain": "music",
+      "question_type": "comparison",
+      "question": "which artist has been performing for longer, shakira or machine gun kelly?",
+      "gold_answer": "shakira has been performing for longer as she started performing in 1990.",
+      "original": {
+        "token_recall": 0.3333333333333333,
+        "phrase_recall": 0.0,
+        "time": 9.401249499991536,
+        "ctx_len": 8503
+      },
+      "enhanced": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 9.73589329997776,
+        "ctx_len": 6230
+      },
+      "kb_only": {
+        "token_recall": 0.5833333333333334,
+        "phrase_recall": 0.0,
+        "time": 1.2348927999846637,
+        "ctx_len": 9765
+      }
+    },
+    {
+      "id": "097faedb",
+      "domain": "sports",
+      "question_type": "set",
+      "question": "which athletes have won olympic gold or silver medals in both the summer and winter games?",
+      "gold_answer": "eddie eagan, jacob tullin thams, christa luding-rothenburger, lauryn williams and eddy alvarez have all won olympic gold or silver medals in both the summer and winter games.",
+      "original": {
+        "token_recall": 0.7777777777777778,
+        "phrase_recall": 0.75,
+        "time": 6.545110500010196,
+        "ctx_len": 9722
+      },
+      "enhanced": {
+        "token_recall": 0.8888888888888888,
+        "phrase_recall": 0.75,
+        "time": 5.090441400010604,
+        "ctx_len": 16810
+      },
+      "kb_only": {
+        "token_recall": 0.8888888888888888,
+        "phrase_recall": 0.75,
+        "time": 1.1451964000007138,
+        "ctx_len": 13529
+      }
+    },
+    {
+      "id": "9fbb99e4",
+      "domain": "movie",
+      "question_type": "simple",
+      "question": "can you tell me the total box office sales worldwide for rough night?",
+      "gold_answer": "45056771",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 15.714771899976768,
+        "ctx_len": 9959
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 9.795474800048396,
+        "ctx_len": 18352
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.7944770999602042,
+        "ctx_len": 14468
+      }
+    },
+    {
+      "id": "508a207a",
+      "domain": "sports",
+      "question_type": "aggregation",
+      "question": "how many points did michael ruffin score for free throws in the game on 2000-11-11?",
+      "gold_answer": "0",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 5.75704830000177,
+        "ctx_len": 11028
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 3.366390199982561,
+        "ctx_len": 14993
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 1.2539040999836288,
+        "ctx_len": 10408
+      }
+    },
+    {
+      "id": "cd7762fc",
+      "domain": "music",
+      "question_type": "simple",
+      "question": "who is the most streamed spotify artist?",
+      "gold_answer": "taylor swift",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 12.366994599986356,
+        "ctx_len": 9255
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 5.62055930000497,
+        "ctx_len": 23528
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.7062525000073947,
+        "ctx_len": 11964
+      }
+    },
+    {
+      "id": "5268e83b",
+      "domain": "open",
+      "question_type": "simple",
+      "question": "which hotel chain is paris hilton associated with?",
+      "gold_answer": "hilton hotels",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 4.304893699998502,
+        "ctx_len": 2307
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 8.38483360002283,
+        "ctx_len": 3624
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.7511528999893926,
+        "ctx_len": 11793
+      }
+    },
+    {
+      "id": "5a222059",
+      "domain": "open",
+      "question_type": "multi-hop",
+      "question": "what's the name of the actor who played the role of harvey specter in the tv show \"suits\"?",
+      "gold_answer": "the actor who played the role of a detective in the tv show \"true detective\" is gabriel macht. as harvey specter, a senior partner at pearson hardman, gabriel macht served as the center of nearly every plotline on suits and was in every single episode of the series.",
+      "original": {
+        "token_recall": 0.7291666666666666,
+        "phrase_recall": 0.25,
+        "time": 2.9370732000097632,
+        "ctx_len": 9080
+      },
+      "enhanced": {
+        "token_recall": 0.7291666666666666,
+        "phrase_recall": 0.25,
+        "time": 3.940217199968174,
+        "ctx_len": 7480
+      },
+      "kb_only": {
+        "token_recall": 0.7291666666666666,
+        "phrase_recall": 0.25,
+        "time": 1.0165456000249833,
+        "ctx_len": 7481
+      }
+    },
+    {
+      "id": "f06259f0",
+      "domain": "sports",
+      "question_type": "post-processing",
+      "question": "what percentage of israel adesanya's ufc fights have ended in a decision?",
+      "gold_answer": "62.5%",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 7.7166075999848545,
+        "ctx_len": 11886
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 8.851390800031368,
+        "ctx_len": 9056
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.9908717999933288,
+        "ctx_len": 8723
+      }
+    },
+    {
+      "id": "6ce84a94",
+      "domain": "music",
+      "question_type": "false_premise",
+      "question": "can you tell me the total number of albums released by the justin timberlake who composed christmas tree?",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 9.469887599989306,
+        "ctx_len": 11208
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 8.663714499969501,
+        "ctx_len": 12098
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.8007360000046901,
+        "ctx_len": 14826
+      }
+    },
+    {
+      "id": "20f54812",
+      "domain": "finance",
+      "question_type": "post-processing",
+      "question": "what's the profit percentage on a stock i bought for $322 and sold for $698?",
+      "gold_answer": "116.77%",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 9.112948599969968,
+        "ctx_len": 10312
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 10.70344870002009,
+        "ctx_len": 7993
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 1.0547685999772511,
+        "ctx_len": 13498
+      }
+    },
+    {
+      "id": "a33c8b67",
+      "domain": "music",
+      "question_type": "simple",
+      "question": "tell me who are in the rolling stones?",
+      "gold_answer": "ronnie wood, bill wyman, keith richards, dick taylor, brian jones, mick jagger, ian stewart, mick avory, charlie watts, tony chapman, mick taylor",
+      "original": {
+        "token_recall": 0.6818181818181818,
+        "phrase_recall": 0.7272727272727273,
+        "time": 5.539995618164539e-05,
+        "ctx_len": 7590
+      },
+      "enhanced": {
+        "token_recall": 0.6818181818181818,
+        "phrase_recall": 0.7272727272727273,
+        "time": 5.290550599980634,
+        "ctx_len": 6196
+      },
+      "kb_only": {
+        "token_recall": 0.6818181818181818,
+        "phrase_recall": 0.7272727272727273,
+        "time": 1.2523353000287898,
+        "ctx_len": 4400
+      }
+    },
+    {
+      "id": "e37b3e3a",
+      "domain": "open",
+      "question_type": "false_premise",
+      "question": "why are jack russell terrier so lazy?",
+      "gold_answer": "invalid question",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 5.329999839887023e-05,
+        "ctx_len": 6066
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 2.7245164000196382,
+        "ctx_len": 5745
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.8773625000030734,
+        "ctx_len": 6854
+      }
+    },
+    {
+      "id": "0fad8c97",
+      "domain": "open",
+      "question_type": "aggregation",
+      "question": "how many marriages does president barack obama have?",
+      "gold_answer": "1",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 4.514053800026886,
+        "ctx_len": 7244
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 4.319781400030479,
+        "ctx_len": 10493
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.8715591999934986,
+        "ctx_len": 10771
+      }
+    },
+    {
+      "id": "e236c396",
+      "domain": "finance",
+      "question_type": "simple",
+      "question": "what was sfwl's closing stock price on the most recent friday?",
+      "gold_answer": "$1.76",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 11.86455769999884,
+        "ctx_len": 8013
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 8.214335199969355,
+        "ctx_len": 11397
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.7411083999904804,
+        "ctx_len": 11981
+      }
+    },
+    {
+      "id": "25775bca",
+      "domain": "sports",
+      "question_type": "simple",
+      "question": "who is the nba's current scoring leader?",
+      "gold_answer": "luka doncic",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 4.17953550000675,
+        "ctx_len": 11108
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 2.8767786999815144,
+        "ctx_len": 13565
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.9214875000179745,
+        "ctx_len": 12271
+      }
+    },
+    {
+      "id": "cb7b187b",
+      "domain": "movie",
+      "question_type": "comparison",
+      "question": "which movie was nominated for more teen choice awards, inside out or finding dory?",
+      "gold_answer": "inside out",
+      "original": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 3.635905500035733,
+        "ctx_len": 10857
+      },
+      "enhanced": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 4.6920663000200875,
+        "ctx_len": 8593
+      },
+      "kb_only": {
+        "token_recall": 0.5,
+        "phrase_recall": 0.0,
+        "time": 1.0563189000240527,
+        "ctx_len": 14659
+      }
+    },
+    {
+      "id": "08ba2a01",
+      "domain": "sports",
+      "question_type": "simple_w_condition",
+      "question": "what was the date of the last time metz competed in fra-ligue 1?",
+      "gold_answer": "2024-03-10",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 10.448601099953521,
+        "ctx_len": 10359
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 7.654655299964361,
+        "ctx_len": 28399
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 0.7154823999735527,
+        "ctx_len": 13821
+      }
+    },
+    {
+      "id": "cffaaeea",
+      "domain": "music",
+      "question_type": "aggregation",
+      "question": "how many members are part of red hot chili pepper?",
+      "gold_answer": "red hot chili peppers currently has 4 members.",
+      "original": {
+        "token_recall": 0.75,
+        "phrase_recall": 0.0,
+        "time": 7.1695381999597885,
+        "ctx_len": 10233
+      },
+      "enhanced": {
+        "token_recall": 0.75,
+        "phrase_recall": 0.0,
+        "time": 10.522690799960401,
+        "ctx_len": 6413
+      },
+      "kb_only": {
+        "token_recall": 0.875,
+        "phrase_recall": 0.0,
+        "time": 0.8001486000139266,
+        "ctx_len": 12491
+      }
+    },
+    {
+      "id": "02475276",
+      "domain": "movie",
+      "question_type": "simple",
+      "question": "in 2012, which movie earned the oscar for best visual effects?",
+      "gold_answer": "hugo",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 11.388533299963456,
+        "ctx_len": 4811
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 10.915138099982869,
+        "ctx_len": 10603
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 1.0,
+        "time": 0.8648703999933787,
+        "ctx_len": 12481
+      }
+    },
+    {
+      "id": "35409f1c",
+      "domain": "music",
+      "question_type": "comparison",
+      "question": "who has more spotify plays, drake or taylor swift?",
+      "gold_answer": "as of february 2024, taylor swift is the most-streamed artist of all time on spotify.",
+      "original": {
+        "token_recall": 0.8666666666666667,
+        "phrase_recall": 0.0,
+        "time": 3.5576892999815755,
+        "ctx_len": 9825
+      },
+      "enhanced": {
+        "token_recall": 0.8666666666666667,
+        "phrase_recall": 0.0,
+        "time": 6.878142500005197,
+        "ctx_len": 6627
+      },
+      "kb_only": {
+        "token_recall": 0.8666666666666667,
+        "phrase_recall": 0.0,
+        "time": 0.9692702000029385,
+        "ctx_len": 10979
+      }
+    },
+    {
+      "id": "4a6ec355",
+      "domain": "sports",
+      "question_type": "simple_w_condition",
+      "question": "what was the date of the last time tottenham competed in eng-premier league?",
+      "gold_answer": "2024-03-10",
+      "original": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 6.01970640005311,
+        "ctx_len": 10615
+      },
+      "enhanced": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 2.090128400013782,
+        "ctx_len": 6633
+      },
+      "kb_only": {
+        "token_recall": 0.0,
+        "phrase_recall": 0.0,
+        "time": 1.0308319000178017,
+        "ctx_len": 5084
+      }
+    },
+    {
+      "id": "08e48056",
+      "domain": "finance",
+      "question_type": "simple_w_condition",
+      "question": "what was the total amount of assets under management (aum) by hedge funds in the united states as of november 2017?",
+      "gold_answer": "the total aum by hedge funds in the united states was $2.63 trillion as of november 2017.",
+      "original": {
+        "token_recall": 0.5294117647058824,
+        "phrase_recall": 0.0,
+        "time": 4.930002614855766e-05,
+        "ctx_len": 725
+      },
+      "enhanced": {
+        "token_recall": 0.5294117647058824,
+        "phrase_recall": 0.0,
+        "time": 1.2320438000024296,
+        "ctx_len": 853
+      },
+      "kb_only": {
+        "token_recall": 0.5294117647058824,
+        "phrase_recall": 0.0,
+        "time": 0.9223385999794118,
+        "ctx_len": 780
+      }
+    },
+    {
+      "id": "83f72184",
+      "domain": "movie",
+      "question_type": "aggregation",
+      "question": "how many live action disney movies are there?",
+      "gold_answer": "there are 22 live action disney movies.",
+      "original": {
+        "token_recall": 0.8571428571428571,
+        "phrase_recall": 0.0,
+        "time": 5.88808910001535,
+        "ctx_len": 8662
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 0.0,
+        "time": 5.628135500010103,
+        "ctx_len": 13004
+      },
+      "kb_only": {
+        "token_recall": 0.8571428571428571,
+        "phrase_recall": 0.0,
+        "time": 1.2935812000068836,
+        "ctx_len": 11745
+      }
+    },
+    {
+      "id": "f25174ba",
+      "domain": "music",
+      "question_type": "aggregation",
+      "question": "how many movies have featured songs by the band queen?",
+      "gold_answer": "94 movies have featured songs by the band queen.",
+      "original": {
+        "token_recall": 0.6666666666666666,
+        "phrase_recall": 0.0,
+        "time": 8.040051600022707,
+        "ctx_len": 9743
+      },
+      "enhanced": {
+        "token_recall": 0.6666666666666666,
+        "phrase_recall": 0.0,
+        "time": 6.047221800021362,
+        "ctx_len": 7556
+      },
+      "kb_only": {
+        "token_recall": 0.6666666666666666,
+        "phrase_recall": 0.0,
+        "time": 0.901254499971401,
+        "ctx_len": 7266
+      }
+    },
+    {
+      "id": "158e20f9",
+      "domain": "open",
+      "question_type": "multi-hop",
+      "question": "what is the symbol of the constellation that includes sirius?",
+      "gold_answer": "the greater dog",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 20.781029500009026,
+        "ctx_len": 9915
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 20.325771800009534,
+        "ctx_len": 7127
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 0.9464119999902323,
+        "ctx_len": 14804
+      }
+    },
+    {
+      "id": "6df51f92",
+      "domain": "open",
+      "question_type": "set",
+      "question": "who held the position of vice president during the presidency of jimmy carter?",
+      "gold_answer": "walter mondale",
+      "original": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 19.79636410000967,
+        "ctx_len": 10291
+      },
+      "enhanced": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 17.561075199977495,
+        "ctx_len": 6980
+      },
+      "kb_only": {
+        "token_recall": 1.0,
+        "phrase_recall": 1.0,
+        "time": 1.736543899984099,
+        "ctx_len": 14395
+      }
+    }
+  ]
+}

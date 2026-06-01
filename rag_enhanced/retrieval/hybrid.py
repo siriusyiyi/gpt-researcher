@@ -68,15 +68,24 @@ class HybridRetriever(BaseRetriever):
         return ranked
 
     async def _vector_search(self, query: str, chunks: list[Chunk]) -> list[int]:
-        """Embed query and chunks, compute cosine similarity, return ranked indices."""
+        """Embed query and chunks, compute cosine similarity, return ranked indices.
+
+        Caches computed embeddings in Chunk objects for downstream reuse.
+        """
         query_emb = await self.embeddings.aembed_query(query)
-        contents = [c.content for c in chunks]
-        if not contents:
-            return []
-        chunk_embs = await self.embeddings.aembed_documents(contents)
-        for i, emb in enumerate(chunk_embs):
-            sim = cosine_similarity(query_emb, emb)
-            chunks[i].vector_score = sim
+
+        # Separate chunks that need embedding from those already cached
+        to_embed_indices = [i for i, c in enumerate(chunks) if c.embedding is None]
+        if to_embed_indices:
+            contents = [chunks[i].content for i in to_embed_indices]
+            new_embs = await self.embeddings.aembed_documents(contents)
+            for idx, emb in zip(to_embed_indices, new_embs):
+                chunks[idx].embedding = emb
+
+        for i, c in enumerate(chunks):
+            sim = cosine_similarity(query_emb, c.embedding)
+            c.vector_score = sim
+
         ranked = sorted(range(len(chunks)), key=lambda i: chunks[i].vector_score, reverse=True)
         return ranked
 

@@ -1,0 +1,105 @@
+{
+  "dataset_size": 10,
+  "per_question": [
+    {
+      "id": 1,
+      "question": "GPT Researcher 的 RAG 工作流程是怎样的？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 2,
+      "question": "GPT Researcher 支持哪些搜索引擎？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 3,
+      "question": "项目默认使用的快速 LLM 模型是什么？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 4,
+      "question": "相似度阈值默认是多少？压缩阈值是多少？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 5,
+      "question": "GPT Researcher 支持哪些报告类型？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 6,
+      "question": "GPT Researcher 的数据源模式有哪些？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 7,
+      "question": "后端使用什么框架？前端有哪些选项？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 8,
+      "question": "文本分块的参数是什么？overlap 是多少？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 9,
+      "question": "如果我要做复杂推理任务应该用哪个模型？做快速任务呢？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    },
+    {
+      "id": 10,
+      "question": "Embedding 模型支持哪些提供商？默认模型是什么？",
+      "original_recall": 1.0,
+      "enhanced_recall": 1.0,
+      "kb_only_recall": 1.0,
+      "original_hit": true,
+      "enhanced_hit": true,
+      "kb_only_hit": true
+    }
+  ]
+}

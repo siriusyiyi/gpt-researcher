@@ -11,6 +11,10 @@ class Chunk:
     Each pipeline stage writes to its own score field so downstream
     stages can inspect multiple dimensions (e.g. compression can
     compare hybrid_score vs rerank_score for dedup decisions).
+
+    The ``embedding`` field caches the vector representation so that
+    downstream stages (reranker, compressor) can reuse it without
+    making redundant API calls.
     """
 
     content: str
@@ -19,6 +23,7 @@ class Chunk:
     bm25_score: float = 0.0
     hybrid_score: float = 0.0
     rerank_score: float = 0.0
+    embedding: list[float] | None = None
 
 
 class BaseChunker(ABC):

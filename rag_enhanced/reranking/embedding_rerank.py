@@ -19,12 +19,18 @@ class EmbeddingReranker(BaseReranker):
             return []
 
         query_emb = await self.embeddings.aembed_query(query)
-        contents = [c.content for c in chunks]
-        chunk_embs = await self.embeddings.aembed_documents(contents)
+
+        # Only embed chunks that don't have cached embeddings
+        to_embed_indices = [i for i, c in enumerate(chunks) if c.embedding is None]
+        if to_embed_indices:
+            contents = [chunks[i].content for i in to_embed_indices]
+            new_embs = await self.embeddings.aembed_documents(contents)
+            for idx, emb in zip(to_embed_indices, new_embs):
+                chunks[idx].embedding = emb
 
         scored: list[tuple[float, Chunk]] = []
-        for chunk, emb in zip(chunks, chunk_embs):
-            sim = cosine_similarity(query_emb, emb)
+        for chunk in chunks:
+            sim = cosine_similarity(query_emb, chunk.embedding)
             ranked_chunk = Chunk(
                 content=chunk.content,
                 metadata=dict(chunk.metadata),
@@ -32,6 +38,7 @@ class EmbeddingReranker(BaseReranker):
                 bm25_score=chunk.bm25_score,
                 hybrid_score=chunk.hybrid_score,
                 rerank_score=sim,
+                embedding=chunk.embedding,  # propagate cached embedding
             )
             scored.append((sim, ranked_chunk))
 

@@ -52,3 +52,4 @@ server_log.txt
 .cursorrules
 CURSOR_RULES.md
 /.history
+evals/rag_eval/crag_data/

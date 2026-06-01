@@ -175,7 +175,8 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
     async def retrieve(self, query: str, top_k: int = 10) -> list[Chunk]:
         """Hybrid retrieval: Chroma vector search + in-memory BM25, fused via RRF.
 
-        Returns Chunk objects with vector_score, bm25_score, and hybrid_score.
+        Returns Chunk objects with vector_score, bm25_score, hybrid_score,
+        and cached embedding from Chroma for downstream reuse.
         """
         # Ensure BM25 index is fresh
         self._ensure_bm25()
@@ -184,22 +185,43 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
         if total == 0:
             return []
 
-        # --- Vector search via Chroma ---
-        vec_results = await self._store.asimilarity_search_with_score(
-            query=query,
-            k=min(top_k * 3, total),  # over-retrieve to give RRF more candidates
-        )
+        # --- Embed query ourselves (ensures consistency + caching) ---
+        query_emb = await self.embeddings.aembed_query(query)
+
+        # --- Vector search via Chroma (fetch embeddings too) ---
+        n_results = min(top_k * 3, total)
+        try:
+            raw = self._store._collection.query(
+                query_embeddings=[query_emb],
+                n_results=n_results,
+                include=["documents", "metadatas", "distances", "embeddings"],
+            )
+        except Exception:
+            # Fallback: query without embeddings
+            raw = self._store._collection.query(
+                query_embeddings=[query_emb],
+                n_results=n_results,
+                include=["documents", "metadatas", "distances"],
+            )
+
+        vec_docs = raw.get("documents", [[]])[0]
+        vec_dists = raw.get("distances", [[]])[0]
+        vec_embs = raw.get("embeddings", [None])[0]
+
         # Build index mapping: Chroma results → position in _bm25_docs
         text_to_bm25_idx = {
             doc["text"]: i for i, doc in enumerate(self._bm25_docs)
         }
 
-        # Vector ranked list: (bm25_index, vector_score)
+        # Vector ranked list: (bm25_index, vector_score, embedding|None)
         vector_ranked: list[tuple[int, float]] = []
-        for doc, score in vec_results:
-            idx = text_to_bm25_idx.get(doc.page_content)
+        vec_emb_map: dict[int, list[float]] = {}
+        for i, (text, dist) in enumerate(zip(vec_docs, vec_dists)):
+            idx = text_to_bm25_idx.get(text)
             if idx is not None:
-                vector_ranked.append((idx, 1.0 - score))
+                vector_ranked.append((idx, 1.0 - dist))
+                if vec_embs is not None and i < len(vec_embs) and vec_embs[i] is not None:
+                    vec_emb_map[idx] = vec_embs[i]
 
         # --- BM25 search ---
         bm25_ranked = self._bm25_search(query)
@@ -233,6 +255,7 @@ class ChromaKnowledgeStore(BaseKnowledgeStore):
                 vector_score=vec_score,
                 bm25_score=bm25_score,
                 hybrid_score=fused[idx],
+                embedding=vec_emb_map.get(idx),  # cached from Chroma
             ))
 
         logger.debug("Retrieved %d chunks (hybrid) for query: %s", len(chunks), query[:50])

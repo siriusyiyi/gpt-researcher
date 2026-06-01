@@ -169,6 +169,7 @@ class RAGPipeline:
                 bm25_score=c.bm25_score,
                 hybrid_score=c.hybrid_score,
                 rerank_score=c.rerank_score,
+                embedding=c.embedding,
             )
             for c in chunks
         ]
